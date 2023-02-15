@@ -10,6 +10,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Dynamic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+
 using webapi.Models;
 
 
@@ -31,6 +38,8 @@ namespace webapi
             services.AddDbContext<DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("sqlconnection")));
             services.AddControllersWithViews();
             services.AddControllers();
+            services.AddMvc();
+            services.AddDbContext<DBContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,14 +50,17 @@ namespace webapi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseRouting();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Execute}/{action=Index}/{id?}");
             });
         }
     }
